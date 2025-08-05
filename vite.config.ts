@@ -3,8 +3,7 @@ name: Deploy Vite Portfolio to GitHub Pages
 on:
   push:
     branches: [ main ]
-  pull_request:
-    branches: [ main ]
+  workflow_dispatch:
 
 # Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
 permissions:
@@ -32,7 +31,7 @@ jobs:
           cache: 'npm'
           
       - name: Install dependencies
-        run: npm ci
+        run: npm install
         
       - name: Build
         run: npm run build
