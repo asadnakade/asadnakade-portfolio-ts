@@ -5,19 +5,16 @@ on:
     branches: [ main ]
   workflow_dispatch:
 
-# Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
 permissions:
   contents: read
   pages: write
   id-token: write
 
-# Allow only one concurrent deployment
 concurrency:
   group: "pages"
   cancel-in-progress: false
 
 jobs:
-  # Build job
   build:
     runs-on: ubuntu-latest
     steps:
@@ -28,14 +25,31 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '18'
-          cache: 'npm'
+          
+      - name: Check file structure
+        run: |
+          echo "Root directory contents:"
+          ls -la
+          echo "Looking for package.json:"
+          find . -name "package.json" -type f
           
       - name: Install dependencies
-        run: npm install
+        run: |
+          if [ -f package.json ]; then
+            npm install
+          else
+            echo "No package.json found in root, checking subdirectories"
+            exit 1
+          fi
         
       - name: Build
-        run: npm run build
+        run: npm run build -- --config vite.config.github.ts
         
+      - name: List dist contents
+        run: |
+          echo "Dist directory contents:"
+          ls -la dist/ || echo "No dist directory found"
+          
       - name: Setup Pages
         uses: actions/configure-pages@v4
         
@@ -44,7 +58,6 @@ jobs:
         with:
           path: './dist'
 
-  # Deployment job
   deploy:
     environment:
       name: github-pages
